@@ -43,7 +43,7 @@ class XMLCNN(nn.Module):
     def forward(self, x):
         embe_out = self.emb(x) # (batch, sent_len, embed_dim)
         x = embe_out.unsqueeze(1) # (batch, channel_input, sent_len, embed_dim)
-        
+
         x = [F.relu(self.conv1(x)).squeeze(3), F.relu(self.conv2(x)).squeeze(3), F.relu(self.conv3(x)).squeeze(3)]
         x = [self.pool(i).squeeze(2) for i in x]
 
@@ -51,8 +51,7 @@ class XMLCNN(nn.Module):
         x = torch.cat(x, 1) # (batch, channel_output * ks)
         x = F.relu(self.bottleneck(x.view(-1, self.ks * self.output_channel * self.dynamic_pool_length)))
         x = self.dropout(x)
-        logit = self.fc1(x) # (batch, target_size)
-        return logit
+        return self.fc1(x)
     
     
 class CorNetXMLCNN(nn.Module):
@@ -63,5 +62,4 @@ class CorNetXMLCNN(nn.Module):
             
     def forward(self, input_variables):
         raw_logits = self.xmlcnn(input_variables)
-        cor_logits = self.cornet(raw_logits)        
-        return cor_logits
+        return self.cornet(raw_logits)

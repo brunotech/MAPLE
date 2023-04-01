@@ -16,9 +16,7 @@ class Probe(nn.Module):
     def forward(self, birnn_outputs, masks):
         attn = self.self_attn(birnn_outputs).transpose(1, 2).masked_fill(~masks, -np.inf)  # (batch, n_probes, in_len)
         attn = F.softmax(attn, -1)
-        # (batch, n_probes, in_len) * (batch, in_len, dim) -> (batch, n_probes, dim)
-        context_vectors = torch.bmm(attn, birnn_outputs)
-        return context_vectors
+        return torch.bmm(attn, birnn_outputs)
     
     
 class MeSHProbes(nn.Module):    
@@ -41,8 +39,7 @@ class PlainC(nn.Module):
         nn.init.xavier_uniform_(self.out_mesh_dstrbtn.weight)
 
     def forward(self, context_vectors):
-        output_dstrbtn = self.out_mesh_dstrbtn(context_vectors)  
-        return output_dstrbtn
+        return self.out_mesh_dstrbtn(context_vectors)
 
 
 class MeSHProbeNet(nn.Module):
@@ -57,9 +54,8 @@ class MeSHProbeNet(nn.Module):
     def forward(self, input_variables):
         emb_out, lengths, masks = self.emb(input_variables)
         birnn_outputs = self.lstm(emb_out, lengths)   # N, L, hidden_size * 2
-        context_vectors = self.meshprobes(birnn_outputs, masks)   
-        logits = self.plaincls(context_vectors)
-        return logits
+        context_vectors = self.meshprobes(birnn_outputs, masks)
+        return self.plaincls(context_vectors)
     
     
 class CorNetMeSHProbeNet(nn.Module):
@@ -70,5 +66,4 @@ class CorNetMeSHProbeNet(nn.Module):
             
     def forward(self, input_variables):
         raw_logits = self.meshprobenet(input_variables)
-        cor_logits = self.cornet(raw_logits)        
-        return cor_logits
+        return self.cornet(raw_logits)

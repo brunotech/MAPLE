@@ -15,8 +15,7 @@ class PlainC(nn.Module):
         nn.init.xavier_uniform_(self.out_mesh_dstrbtn.weight)
 
     def forward(self, context_vectors):
-        output_dstrbtn = self.out_mesh_dstrbtn(context_vectors)  
-        return output_dstrbtn
+        return self.out_mesh_dstrbtn(context_vectors)
 
 class MeSHProbeNet_encoder(nn.Module):
     def __init__(self, emb_size, hidden_size, n_layers, n_probes, labels_num, dropout, bottleneck_dim=None, 
@@ -73,15 +72,14 @@ class XMLCNN_encoder(nn.Module):
     def forward(self, x):
         embe_out = self.emb(x) # (batch, sent_len, embed_dim)
         x = embe_out.unsqueeze(1) # (batch, channel_input, sent_len, embed_dim)
-        
+
         x = [F.relu(self.conv1(x)).squeeze(3), F.relu(self.conv2(x)).squeeze(3), F.relu(self.conv3(x)).squeeze(3)]
         x = [self.pool(i).squeeze(2) for i in x]
 
         # (batch, channel_output) * ks
         x = torch.cat(x, 1) # (batch, channel_output * ks)
         x = F.relu(self.bottleneck(x.view(-1, self.ks * self.output_channel * self.dynamic_pool_length)))
-        context_vectors = self.dropout(x)
-        return context_vectors
+        return self.dropout(x)
 
 
 class gpipe_encoder(nn.Module):
@@ -95,8 +93,7 @@ class gpipe_encoder(nn.Module):
             self.net = BaseBertModel(**kwargs)
             
     def forward(self, input_variables):
-        context_vectors = self.net(input_variables)    
-        return context_vectors
+        return self.net(input_variables)
     
 class gpipe_decoder(nn.Module):
     def __init__(self, model_name, labels_num, bottleneck_dim, **kwargs):
@@ -107,5 +104,4 @@ class gpipe_decoder(nn.Module):
             self.net = nn.Sequential(PlainC(labels_num, bottleneck_dim), CorNet(labels_num, **kwargs))
             
     def forward(self, context_vectors):
-        logtis = self.net(context_vectors)    
-        return logtis
+        return self.net(context_vectors)

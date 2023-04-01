@@ -21,8 +21,7 @@ with open(f'../MAPLE/{dataset}/labels.txt') as fin:
 		label2name[label] = name
 		label2token[label] = set(name.split())
 
-with open(f'../MAPLE/{dataset}/papers.json') as fin, \
-	 open(f'./Parabel/Sandbox/Data/{dataset}/matched_labels.txt', 'w') as fout:
+with (open(f'../MAPLE/{dataset}/papers.json') as fin, open(f'./Parabel/Sandbox/Data/{dataset}/matched_labels.txt', 'w') as fout):
 	fout.write(str(len(label2name))+'\n')
 	for line in tqdm(fin):
 		data = json.loads(line)
@@ -32,15 +31,10 @@ with open(f'../MAPLE/{dataset}/papers.json') as fin, \
 		text = (data['title'] + ' ' + data['abstract']).strip()
 		tokens = set(text.split())
 		candidates = []
-		for label in label2name:
-			matched = 1
-			for token in label2token[label]:
-				if token not in tokens:
-					matched = 0
-					break
-			if matched == 1 and len(label2token[label]) > 1:
-				if label2name[label] not in text:
-					matched = 0
+		for label, value in label2name.items():
+			matched = next((0 for token in label2token[label] if token not in tokens), 1)
+			if matched == 1 and len(label2token[label]) > 1 and value not in text:
+				matched = 0
 			if matched == 1:
 				candidates.append(label)
 		fout.write('\t'.join(candidates)+'\n')

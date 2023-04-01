@@ -28,12 +28,11 @@ def build_vocab(texts: Iterable, w2v_model: Union[KeyedVectors, str], vocab_size
 
 
 def get_word_emb(vec_path, vocab_path=None):
-    if vocab_path is not None:
-        with open(vocab_path) as fp:
-            vocab = {word: idx for idx, word in enumerate(fp)}
-        return np.load(vec_path), vocab
-    else:
+    if vocab_path is None:
         return np.load(vec_path)
+    with open(vocab_path) as fp:
+        vocab = {word: idx for idx, word in enumerate(fp)}
+    return np.load(vec_path), vocab
 
 
 def get_data(text_file, label_file=None):
@@ -47,8 +46,12 @@ def convert_to_binary(text_file, label_file=None, max_len=None, vocab=None, pad=
     labels = None
     if label_file is not None:
         with open(label_file) as fp:
-            labels = np.asarray([[label for label in line.split()]
-                                 for line in tqdm(fp, desc='Converting labels', leave=False)])
+            labels = np.asarray(
+                [
+                    list(line.split())
+                    for line in tqdm(fp, desc='Converting labels', leave=False)
+                ]
+            )
     return truncate_text(texts, max_len, vocab[pad], vocab[unknown]), labels
 
 

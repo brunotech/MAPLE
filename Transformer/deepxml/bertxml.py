@@ -99,8 +99,7 @@ class BertConfig(object):
 
     def to_dict(self):
         """Serializes this instance to a Python dictionary."""
-        output = copy.deepcopy(self.__dict__)
-        return output
+        return copy.deepcopy(self.__dict__)
 
     def to_json_string(self):
         """Serializes this instance to a JSON string."""
@@ -239,8 +238,7 @@ class BertAttention(nn.Module):
 
     def forward(self, input_tensor, attention_mask):
         self_output = self.self(input_tensor, attention_mask)
-        attention_output = self.output(self_output, input_tensor)
-        return attention_output
+        return self.output(self_output, input_tensor)
 
 
 class BertIntermediate(nn.Module):
@@ -280,8 +278,7 @@ class BertLayer(nn.Module):
     def forward(self, hidden_states, attention_mask):
         attention_output = self.attention(hidden_states, attention_mask)
         intermediate_output = self.intermediate(attention_output)
-        layer_output = self.output(intermediate_output, attention_output)
-        return layer_output
+        return self.output(intermediate_output, attention_output)
 
 
 class BertEncoder(nn.Module):
@@ -411,8 +408,6 @@ class BaseBertModel(nn.Module):
             # cf https://github.com/pytorch/pytorch/pull/5617
 #            module.weight.data.normal_(mean=0.0, std=self.initializer_range)
             nn.init.xavier_uniform_(module.weight) # alternative initialization
-        elif isinstance(module, BertLayerNorm):
-            pass
 #            module.beta.data.normal_(mean=0.0, std=self.initializer_range)
 #            module.gamma.data.normal_(mean=0.0, std=self.initializer_range)
         if isinstance(module, nn.Linear) and module.bias is not None:
@@ -443,8 +438,7 @@ class PlainC(nn.Module):
         nn.init.xavier_uniform_(self.out_mesh_dstrbtn.weight)
 
     def forward(self, context_vectors):
-        output_dstrbtn = self.out_mesh_dstrbtn(context_vectors)  
-        return output_dstrbtn
+        return self.out_mesh_dstrbtn(context_vectors)
     
 #%%
 class BertXML(nn.Module):
@@ -455,8 +449,7 @@ class BertXML(nn.Module):
             
     def forward(self, input_variables):
         context_vectors = self.tewp(input_variables)
-        logits = self.plaincls(context_vectors)
-        return logits
+        return self.plaincls(context_vectors)
     
     
 class CorNetBertXML(nn.Module):
@@ -467,5 +460,4 @@ class CorNetBertXML(nn.Module):
             
     def forward(self, input_variables):
         raw_logits = self.bertxml(input_variables)
-        cor_logits = self.cornet(raw_logits)        
-        return cor_logits
+        return self.cornet(raw_logits)

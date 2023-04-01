@@ -99,5 +99,4 @@ class CorNetAttentionXML(nn.Module):
 
     def forward(self, input_variables):
         raw_logits = self.attnrnn(input_variables)
-        cor_logits = self.cornet(raw_logits)        
-        return cor_logits
+        return self.cornet(raw_logits)

@@ -16,16 +16,16 @@ def get_input(data, m2cnt, mtype):
 	if mtype == 'None':
 		return text.strip()
 
-	if mtype == 'Venue':
-		ms = ['VENUE_'+data['venue']]
-	elif mtype == 'Author':
-		ms = ['AUTHOR_'+x for x in data['author']]
+	if mtype == 'Author':
+		ms = [f'AUTHOR_{x}' for x in data['author']]
 	elif mtype == 'Reference':
-		ms = ['REFERENCE_'+x for x in data['reference']]
-	
+		ms = [f'REFERENCE_{x}' for x in data['reference']]
+
+	elif mtype == 'Venue':
+		ms = ['VENUE_'+data['venue']]
 	meta_filtered = [m for m in ms if m2cnt[m] >= 5] + ['[SEP]']
 	meta_seq = ' '.join(meta_filtered)
-	final_seq = meta_seq + ' ' + text
+	final_seq = f'{meta_seq} {text}'
 	return final_seq.strip()
 
 if not os.path.exists(f'data/{dataset}/'):
@@ -37,8 +37,8 @@ with open(f'../MAPLE/{dataset}/papers.json') as fin:
 		data = json.loads(line)
 		if int(data['year']) <= 2015:
 			ms = ['VENUE_'+data['venue']]
-			ms += ['AUTHOR_'+x for x in data['author']]
-			ms += ['REFERENCE_'+x for x in data['reference']]
+			ms += [f'AUTHOR_{x}' for x in data['author']]
+			ms += [f'REFERENCE_{x}' for x in data['reference']]
 			for m in ms:
 				m2cnt[m] += 1
 

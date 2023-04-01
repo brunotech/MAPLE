@@ -94,7 +94,7 @@ class Model(object):
 
     def save_model(self, last_epoch):
         if not last_epoch: return
-        for trial in range(2):
+        for _ in range(2):
             try:                
                 torch.save(self.model.module.state_dict(), self.model_path)
                 break
@@ -223,7 +223,7 @@ class GPipeModel(object):
 
     def save_model(self, last_epoch):
         if not last_epoch: return
-        for trial in range(2):
+        for _ in range(2):
             try:                
                 torch.save(self.model.state_dict(), self.model_path)
                 break
